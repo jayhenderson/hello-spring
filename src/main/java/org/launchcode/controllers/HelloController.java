@@ -1,10 +1,13 @@
 package org.launchcode.controllers;
 
+import org.launchcode.models.HelloMessage;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.RequestWrapper;
+import java.util.Map;
 
 /**
  * Created by J on 3/6/2017.
@@ -14,24 +17,25 @@ public class HelloController {
 
     @RequestMapping(value = "")
     @ResponseBody
-    public String index(HttpServletRequest request) {
-
-        String username = request.getParameter("name");
-
-        if (username == null) {
-            username = "World";
-        }
-
-        return "Hello " + username;
+    public String index(@RequestParam(defaultValue = "World")String name) {
+        return "Hello " + name;
     }
 
     @RequestMapping(value = "hello", method = RequestMethod.GET)
     @ResponseBody
     public String helloForm() {
 
-        String html = "<form method='post'>" +
+        String html =
+                "<form method='post'>" +
                 "<input type='text' name='name' />" +
-                "<input type='submit' value='Greet Me!' />" +
+                "<select name='language'>";
+
+        for (Map.Entry<String, String> option : HelloMessage.getLanguages().entrySet()){
+            String key = option.getKey();
+            html += "<option name='" + key + "'>" + key + "</option>";
+        }
+
+         html += "<input type='submit' value='Greet Me!' />" +
                 "</form>";
 
         return html;
@@ -42,8 +46,8 @@ public class HelloController {
 
 
         String name = request.getParameter("name");
-
-        return "Hello " + name;
+        String language = request.getParameter("language");
+        return HelloMessage.createMessage(name, language);
 
     }
 
@@ -61,4 +65,6 @@ public class HelloController {
         return "redirect:/";
     }
 
+
 }
+
